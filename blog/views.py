@@ -1,18 +1,17 @@
-from django.db.models import Q
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from .models import Post, Category, Tag
+from django.db.models import Q
+from .models import Post, Category, Tag, Comment
 
 
 def post_list(request):
-    """首页：文章列表 + 搜索"""
+    """首页 / 搜索：文章列表"""
     posts = Post.objects.filter(status="published")
-    search_query = ""
+    category = None
+    tag = None
+    query = request.GET.get("q", "")
 
-    query = request.GET.get("q", "").strip()
     if query:
-        search_query = query
         posts = posts.filter(
             Q(title__icontains=query) | Q(body__icontains=query) | Q(summary__icontains=query)
         )
@@ -25,60 +24,60 @@ def post_list(request):
         page_obj = paginator.page(1)
 
     return render(request, "blog/post_list.html", {
-        "page_obj": page_obj,
-        "search_query": search_query,
-        "page_title": "首页",
+        "page_obj": page_obj, "category": category, "tag": tag,
+        "query": query, "search_query": query,
     })
 
 
 def post_detail(request, slug):
-    """文章详情页"""
+    """文章详情 + 评论"""
     post = get_object_or_404(Post, slug=slug, status="published")
     post.increase_views()
-    return render(request, "blog/post_detail.html", {
-        "post": post,
-        "page_title": post.title,
-    })
+
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        body = request.POST.get("body", "").strip()
+        if name and body and len(body) >= 2:
+            Comment.objects.create(
+                post=post, name=name,
+                email=request.POST.get("email", "").strip(),
+                body=body
+            )
+        return redirect(post.get_absolute_url())
+
+    comments = post.comments.all()
+    return render(request, "blog/post_detail.html", {"post": post, "comments": comments})
 
 
 def category_list(request, slug):
     """分类文章列表"""
     category = get_object_or_404(Category, slug=slug)
-    posts = Post.objects.filter(category=category, status="published")
+    posts = Post.objects.filter(status="published", category=category)
     paginator = Paginator(posts, 10)
-    page = request.GET.get("page", 1)
-    try:
-        page_obj = paginator.page(page)
-    except (PageNotAnInteger, EmptyPage):
-        page_obj = paginator.page(1)
-
-    return render(request, "blog/post_list.html", {
-        "page_obj": page_obj,
-        "search_query": "",
-        "page_title": f"分类：{category.name}",
-        "category": category,
-    })
+    page_obj = paginator.get_page(request.GET.get("page", 1))
+    return render(request, "blog/post_list.html", {"page_obj": page_obj, "category": category})
 
 
 def tag_list(request, slug):
     """标签文章列表"""
     tag = get_object_or_404(Tag, slug=slug)
-    posts = Post.objects.filter(tags=tag, status="published")
+    posts = Post.objects.filter(status="published", tags=tag)
     paginator = Paginator(posts, 10)
-    page = request.GET.get("page", 1)
-    try:
-        page_obj = paginator.page(page)
-    except (PageNotAnInteger, EmptyPage):
-        page_obj = paginator.page(1)
+    page_obj = paginator.get_page(request.GET.get("page", 1))
+    return render(request, "blog/post_list.html", {"page_obj": page_obj, "tag": tag})
 
-    return render(request, "blog/post_list.html", {
-        "page_obj": page_obj,
-        "search_query": "",
-        "page_title": f"标签：{tag.name}",
-        "tag": tag,
-    })
+
+def search(request):
+    """搜索"""
+    q = request.GET.get("q", "")
+    posts = Post.objects.filter(status="published").filter(
+        Q(title__icontains=q) | Q(body__icontains=q) | Q(summary__icontains=q)
+    ) if q else Post.objects.none()
+    paginator = Paginator(posts, 10)
+    page_obj = paginator.get_page(request.GET.get("page", 1))
+    return render(request, "blog/post_list.html", {"page_obj": page_obj, "query": q, "search_query": q})
 
 
 def about(request):
     """关于页面"""
-    return render(request, "blog/about.html", {"page_title": "关于"})
+    return render(request, "blog/about.html")

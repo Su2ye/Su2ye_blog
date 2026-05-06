@@ -21,11 +21,7 @@
                 <span>{{ post.views }} 阅读</span>
             </div>
         </header>
-
-        <div class="post-body">
-            {{ post.body|markdown }}
-        </div>
-
+        <div class="post-body">{{ post.body|markdown }}</div>
         {% if post.tags.all %}
         <div class="post-tags">
             {% for t in post.tags.all %}
@@ -48,20 +44,32 @@
 {% endif %}
 
 <section class="post-comments">
-    <script src="https://giscus.app/client.js"
-        data-repo="Su2ye/blog-comments"
-        data-repo-id="R_kgDOSUvxKA"
-        data-category="Announcements"
-        data-category-id="DIC_kwDOSUvxKM4C8X1q"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="top"
-        data-theme="light"
-        data-lang="zh-CN"
-        crossorigin="anonymous"
-        async>
-    </script>
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;">评论 ({{ comments|length }})</h3>
+
+    {% for c in comments %}
+    <div style="padding:16px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <strong style="font-size:14px;color:var(--text);">{{ c.name }}</strong>
+            <span style="font-size:12px;color:var(--text-muted);">{{ c.created_at|date:"Y-m-d H:i" }}</span>
+        </div>
+        <p style="font-size:14px;color:var(--text-light);line-height:1.7;margin:0;">{{ c.body }}</p>
+    </div>
+    {% empty %}
+    <p style="color:var(--text-muted);font-size:14px;text-align:center;padding:24px 0;">还没有评论，来说两句吧</p>
+    {% endfor %}
+
+    <form method="post" action="{{ post.get_absolute_url }}" style="margin-top:24px;">
+        {% csrf_token %}
+        <div style="display:flex;gap:12px;margin-bottom:12px;">
+            <input type="text" name="name" placeholder="昵称 *" required maxlength="50"
+                style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;">
+            <input type="email" name="email" placeholder="邮箱（可选）" maxlength="100"
+                style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;">
+        </div>
+        <textarea name="body" placeholder="写下你的想法..." required maxlength="2000" rows="4"
+            style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;resize:vertical;font-family:inherit;"></textarea>
+        <button type="submit"
+            style="margin-top:10px;padding:10px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;">发表评论</button>
+    </form>
 </section>
 {% endblock %}

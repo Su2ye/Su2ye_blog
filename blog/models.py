@@ -120,3 +120,22 @@ class FriendLink(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Comment(models.Model):
+    """文章评论"""
+    post = models.ForeignKey(
+        Post, verbose_name="文章", on_delete=models.CASCADE, related_name="comments"
+    )
+    name = models.CharField("昵称", max_length=50)
+    email = models.EmailField("邮箱", blank=True, default="")
+    body = models.TextField("评论内容", max_length=2000)
+    created_at = models.DateTimeField("评论时间", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "评论"
+        verbose_name_plural = "评论"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.name}: {self.body[:30]}"
