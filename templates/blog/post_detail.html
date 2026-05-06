@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load blog_tags %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<article class="post-detail">
+    {% if post.image %}
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-detail-cover">
+    {% endif %}
+    <div class="post-detail-body">
+        <header class="post-header">
+            <h1>{{ post.title }}</h1>
+            <div class="post-meta">
+                <span>{{ post.author }}</span>
+                <span class="post-meta-dot">·</span>
+                <span>{{ post.created_at|date:"Y-m-d" }}</span>
+                {% if post.category %}
+                <span class="post-meta-dot">·</span>
+                <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>
+                {% endif %}
+                <span class="post-meta-dot">·</span>
+                <span>{{ post.views }} 阅读</span>
+            </div>
+        </header>
+
+        <div class="post-body">
+            {{ post.body|markdown }}
+        </div>
+
+        {% if post.tags.all %}
+        <div class="post-tags">
+            {% for t in post.tags.all %}
+            <a href="{{ t.get_absolute_url }}" class="tag">{{ t.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</article>
+
+{% if post.prev_post or post.next_post %}
+<nav class="post-nav" style="margin-top:24px;">
+    {% if post.prev_post %}
+    <a href="{{ post.prev_post.get_absolute_url }}">← {{ post.prev_post.title }}</a>
+    {% else %}<div></div>{% endif %}
+    {% if post.next_post %}
+    <a href="{{ post.next_post.get_absolute_url }}" class="next">{{ post.next_post.title }} →</a>
+    {% endif %}
+</nav>
+{% endif %}
+
+<section class="post-comments" style="margin-top:40px;">
+    <script src="https://giscus.app/client.js"
+        data-repo="Su2ye/blog-comments"
+        data-repo-id="R_kgDOSUvxKA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOSUvxKM4C8X1q"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+{% endblock %}

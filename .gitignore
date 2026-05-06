@@ -1,0 +1,32 @@
+# Django
+__pycache__/
+*.py[cod]
+*.log
+*.pot
+db.sqlite3
+db.sqlite3-journal
+media/post_images/
+media/*.jpg
+media/*.png
+
+# Static
+staticfiles/
+static/img/
+
+# System
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Env
+venv/
+.env
+*.egg-info/
+
+# Scripts
+create_first_post.py
+create_build_post.py
+/tmp/

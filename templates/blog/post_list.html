@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block hero %}
+{% if not search_query and page_obj.number == 1 and not category and not tag %}
+<section class="hero">
+    <div class="hero-inner">
+        <h1>Su2ye 的博客</h1>
+        <p>记录技术、生活与思考。<br>每一篇文章，都是一次沉淀。</p>
+        {% load blog_tags %}
+        {% get_tags as hero_tags %}
+        {% if hero_tags %}
+        <div class="hero-tags">
+            {% for t in hero_tags|slice:":5" %}
+            <a href="{{ t.get_absolute_url }}">{{ t.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h1 class="page-heading">
+    {% if category %}{{ category.name }}{% elif tag %}{{ tag.name }}{% elif search_query %}搜索结果：{{ search_query }}{% else %}最新文章{% endif %}
+</h1>
+
+{% if category and category.description %}
+<p style="color:#64748b;margin-bottom:24px;font-size:15px;">{{ category.description }}</p>
+{% endif %}
+
+{% for post in page_obj %}
+<article class="post-card">
+    {% if post.image %}
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-card-image" loading="lazy">
+    {% endif %}
+    <div class="post-card-body">
+        <h2 class="post-title">
+            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+            {% if post.is_top %}<span class="top-badge">置顶</span>{% endif %}
+        </h2>
+        <div class="post-meta">
+            <span>{{ post.created_at|date:"Y-m-d" }}</span>
+            <span class="post-meta-dot">·</span>
+            {% if post.category %}
+            <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>
+            <span class="post-meta-dot">·</span>
+            {% endif %}
+            <span>{{ post.views }} 阅读</span>
+        </div>
+        <p class="post-summary">
+            {% if post.summary %}{{ post.summary }}{% else %}{{ post.body|striptags|truncatewords:60 }}{% endif %}
+        </p>
+        <a href="{{ post.get_absolute_url }}" class="read-more">阅读全文 →</a>
+    </div>
+</article>
+{% empty %}
+<div class="empty-state">
+    <p>{% if search_query %}未找到与「{{ search_query }}」相关的文章{% else %}暂无文章，敬请期待{% endif %}</p>
+</div>
+{% endfor %}
+
+{% if page_obj.has_other_pages %}
+<nav class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">← 上一页</a>
+    {% endif %}
+    <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">下一页 →</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% endblock %}
