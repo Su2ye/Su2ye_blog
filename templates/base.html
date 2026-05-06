@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 {% load static blog_tags %}
+{% get_categories as categories %}
+{% get_tags as all_tags %}
+{% get_recent_posts 5 as recent_posts %}
+{% get_post_count as total_posts %}
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +13,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header class="site-header" id="site-header">
+    <header class="site-header">
         <div class="header-inner">
             <a href="{% url 'blog:home' %}" class="site-logo">Su2ye</a>
             <nav class="site-nav">
@@ -26,9 +30,73 @@
     {% block hero %}{% endblock %}
 
     <main class="main-layout">
+
+        <!-- 左侧栏：个人信息 -->
+        <aside class="sidebar-left">
+            <div class="profile-card">
+                <img src="/static/img/tx.jpg" alt="Su2ye" class="avatar" width="80" height="80">
+                <div class="name">Su2ye</div>
+                <div class="bio">记录学习与生活</div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="num">{{ total_posts }}</div>
+                        <div class="label">文章</div>
+                    </div>
+                    <div class="stat">
+                        <div class="num">{{ categories|length }}</div>
+                        <div class="label">分类</div>
+                    </div>
+                    <div class="stat">
+                        <div class="num">{{ all_tags|length }}</div>
+                        <div class="label">标签</div>
+                    </div>
+                </div>
+            </div>
+            <div class="side-links">
+                <a href="{% url 'blog:about' %}">👤 关于我</a>
+                <a href="{% url 'blog:rss' %}">📡 RSS 订阅</a>
+            </div>
+        </aside>
+
+        <!-- 中间：主要内容 -->
         <section class="content">
             {% block content %}{% endblock %}
         </section>
+
+        <!-- 右侧栏：分类 + 标签 -->
+        <aside class="sidebar-right">
+            <div class="right-widget">
+                <h3>分类</h3>
+                <ul>
+                    {% for c in categories %}
+                    <li><a href="{{ c.get_absolute_url }}">{{ c.name }} <span>{{ c.post_count }}</span></a></li>
+                    {% empty %}
+                    <li><span style="font-size:13px;color:var(--text-muted);">暂无</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="right-widget">
+                <h3>标签</h3>
+                <div class="tag-mini">
+                    {% for t in all_tags %}
+                    <a href="{{ t.get_absolute_url }}">{{ t.name }}</a>
+                    {% empty %}
+                    <span style="font-size:12px;color:var(--text-muted);">暂无</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if recent_posts %}
+            <div class="right-widget">
+                <h3>最新</h3>
+                <ul>
+                    {% for p in recent_posts %}
+                    <li><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </aside>
+
     </main>
 
     <footer class="site-footer">
