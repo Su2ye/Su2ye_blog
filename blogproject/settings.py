@@ -3,11 +3,14 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-change-this-to-a-random-secret-key-in-production"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "change-me-in-production")
 
-DEBUG = False
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = ["su2ye.site", "www.su2ye.site", "122.51.135.14", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = os.environ.get(
+    "DJANGO_ALLOWED_HOSTS",
+    "localhost,127.0.0.1"
+).split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
