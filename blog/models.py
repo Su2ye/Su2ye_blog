@@ -130,6 +130,7 @@ class Comment(models.Model):
     name = models.CharField("昵称", max_length=50)
     email = models.EmailField("邮箱", blank=True, default="")
     body = models.TextField("评论内容", max_length=2000)
+    is_approved = models.BooleanField("审核通过", default=False)
     created_at = models.DateTimeField("评论时间", auto_now_add=True)
 
     class Meta:
