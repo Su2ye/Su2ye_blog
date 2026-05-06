@@ -12,8 +12,6 @@
         <header class="post-header">
             <h1>{{ post.title }}</h1>
             <div class="post-meta">
-                <span>{{ post.author }}</span>
-                <span class="post-meta-dot">·</span>
                 <span>{{ post.created_at|date:"Y-m-d" }}</span>
                 {% if post.category %}
                 <span class="post-meta-dot">·</span>
@@ -39,7 +37,7 @@
 </article>
 
 {% if post.prev_post or post.next_post %}
-<nav class="post-nav" style="margin-top:24px;">
+<nav class="post-nav">
     {% if post.prev_post %}
     <a href="{{ post.prev_post.get_absolute_url }}">← {{ post.prev_post.title }}</a>
     {% else %}<div></div>{% endif %}
@@ -49,7 +47,7 @@
 </nav>
 {% endif %}
 
-<section class="post-comments" style="margin-top:40px;">
+<section class="post-comments">
     <script src="https://giscus.app/client.js"
         data-repo="Su2ye/blog-comments"
         data-repo-id="R_kgDOSUvxKA"

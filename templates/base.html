@@ -1,31 +1,24 @@
 <!DOCTYPE html>
 {% load static blog_tags %}
-{% get_categories as categories %}
-{% get_tags as tags %}
-{% get_recent_posts 5 as recent_posts %}
-{% get_popular_posts 5 as popular_posts %}
-{% get_friend_links as friend_links %}
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ page_title }}{% endblock %} | Su2ye 的博客</title>
+    <title>{% block title %}首页{% endblock %} | Su2ye 的博客</title>
     <link rel="alternate" type="application/rss+xml" title="Su2ye 的博客 RSS" href="{% url 'blog:rss' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header class="site-header">
+    <header class="site-header" id="site-header">
         <div class="header-inner">
-            <a href="{% url 'blog:home' %}" class="site-logo">
-                <span class="site-logo-icon">S</span>
-                Su2ye
-            </a>
+            <a href="{% url 'blog:home' %}" class="site-logo">Su2ye</a>
             <nav class="site-nav">
                 <a href="{% url 'blog:home' %}">文章</a>
                 <a href="{% url 'blog:about' %}">关于</a>
+                <a href="{% url 'blog:rss' %}">RSS</a>
             </nav>
             <form class="header-search" action="{% url 'blog:search' %}" method="get">
-                <input type="text" name="q" placeholder="搜索文章..." value="{{ search_query|default:'' }}">
+                <input type="text" name="q" placeholder="搜索..." value="{{ search_query|default:'' }}">
             </form>
         </div>
     </header>
@@ -36,75 +29,10 @@
         <section class="content">
             {% block content %}{% endblock %}
         </section>
-        <aside class="sidebar">
-            <div class="sidebar-widget profile-widget">
-                <div class="profile-avatar">S</div>
-                <h3>Su2ye</h3>
-                <p>分享技术与生活</p>
-                <div class="profile-stats">
-                    <div class="profile-stat">
-                        <div class="num">{% get_post_count %}</div>
-                        <div class="label">文章</div>
-                    </div>
-                    <div class="profile-stat">
-                        <div class="num">{{ categories|length }}</div>
-                        <div class="label">分类</div>
-                    </div>
-                    <div class="profile-stat">
-                        <div class="num">{{ tags|length }}</div>
-                        <div class="label">标签</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-widget">
-                <h3>分类</h3>
-                <ul>
-                    {% for c in categories %}
-                    <li><a href="{{ c.get_absolute_url }}">{{ c.name }} <span>{{ c.post_count }} 篇</span></a></li>
-                    {% empty %}
-                    <li><a>暂无分类</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <div class="sidebar-widget">
-                <h3>标签</h3>
-                <div class="tag-cloud">
-                    {% for t in tags %}
-                    <a href="{{ t.get_absolute_url }}">{{ t.name }}</a>
-                    {% empty %}
-                    <span style="font-size:13px;color:#94a3b8;">暂无标签</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="sidebar-widget">
-                <h3>最新文章</h3>
-                <ul>
-                    {% for p in recent_posts %}
-                    <li><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></li>
-                    {% empty %}
-                    <li><a>暂无文章</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            {% if friend_links %}
-            <div class="sidebar-widget">
-                <h3>友链</h3>
-                <ul>
-                    {% for link in friend_links %}
-                    <li><a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.name }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-        </aside>
     </main>
 
     <footer class="site-footer">
-        <p>&copy; {% now "Y" %} Su2ye.site · Powered by Django</p>
+        <p>&copy; {% now "Y" %} Su2ye.site</p>
     </footer>
 </body>
 </html>
