@@ -39,9 +39,10 @@ def post_detail(request, slug):
             Comment.objects.create(
                 post=post, name=name,
                 email=request.POST.get("email", "").strip(),
-                body=body
+                body=body,
+                is_approved=False
             )
-        return redirect(post.get_absolute_url())
+        return redirect(post.get_absolute_url() + "?submitted=1")
 
     comments = post.comments.filter(is_approved=True)
     return render(request, "blog/post_detail.html", {"post": post, "comments": comments})

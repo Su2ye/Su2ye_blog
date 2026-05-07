@@ -47,7 +47,6 @@
 
 <section class="post-comments">
     <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;">评论 ({{ comments|length }})</h3>
-
     {% for c in comments %}
     <div style="padding:16px 0;border-bottom:1px solid var(--border);">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
@@ -74,4 +73,18 @@
             style="margin-top:10px;padding:10px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;">发表评论</button>
     </form>
 </section>
+
+{% if request.GET.submitted == '1' %}
+<div id="comment-toast" style="position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:400;padding:14px 28px;background:#1e293b;color:#fff;border-radius:12px;font-size:15px;box-shadow:0 8px 32px rgba(0,0,0,.2);opacity:0;transition:opacity .4s;">
+📬 评论已入站，等待站长翻牌子
+</div>
+<script>
+(function() {
+var toast = document.getElementById('comment-toast');
+setTimeout(function() { toast.style.opacity = '1'; }, 100);
+setTimeout(function() { toast.style.opacity = '0'; }, 1250);
+setTimeout(function() { toast.remove(); }, 1750);
+})();
+</script>
+{% endif %}
 {% endblock %}
