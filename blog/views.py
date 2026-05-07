@@ -5,7 +5,6 @@ from .models import Post, Category, Tag, Comment
 
 
 def post_list(request):
-    """首页 / 搜索：文章列表"""
     posts = Post.objects.filter(status="published")
     category = None
     tag = None
@@ -30,7 +29,6 @@ def post_list(request):
 
 
 def post_detail(request, slug):
-    """文章详情 + 评论"""
     post = get_object_or_404(Post, slug=slug, status="published")
     post.increase_views()
 
@@ -45,12 +43,11 @@ def post_detail(request, slug):
             )
         return redirect(post.get_absolute_url())
 
-    comments = post.comments.all()
+    comments = post.comments.filter(is_approved=True)
     return render(request, "blog/post_detail.html", {"post": post, "comments": comments})
 
 
 def category_list(request, slug):
-    """分类文章列表"""
     category = get_object_or_404(Category, slug=slug)
     posts = Post.objects.filter(status="published", category=category)
     paginator = Paginator(posts, 10)
@@ -59,7 +56,6 @@ def category_list(request, slug):
 
 
 def tag_list(request, slug):
-    """标签文章列表"""
     tag = get_object_or_404(Tag, slug=slug)
     posts = Post.objects.filter(status="published", tags=tag)
     paginator = Paginator(posts, 10)
@@ -68,7 +64,6 @@ def tag_list(request, slug):
 
 
 def search(request):
-    """搜索"""
     q = request.GET.get("q", "")
     posts = Post.objects.filter(status="published").filter(
         Q(title__icontains=q) | Q(body__icontains=q) | Q(summary__icontains=q)
@@ -79,5 +74,4 @@ def search(request):
 
 
 def about(request):
-    """关于页面"""
     return render(request, "blog/about.html")

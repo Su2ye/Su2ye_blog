@@ -35,10 +35,16 @@ class FriendLinkAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ["name", "post", "body_preview", "created_at"]
-    list_filter = ["created_at", "post"]
+    list_display = ["name", "post", "body_preview", "is_approved", "created_at"]
+    list_filter = ["is_approved", "created_at", "post"]
     search_fields = ["name", "body"]
+    actions = ["approve_comments"]
 
     def body_preview(self, obj):
         return obj.body[:50] + ("..." if len(obj.body) > 50 else "")
     body_preview.short_description = "评论内容"
+
+    def approve_comments(self, request, queryset):
+        queryset.update(is_approved=True)
+        self.message_user(request, f"已审核通过 {queryset.count()} 条评论")
+    approve_comments.short_description = "批量审核通过"
