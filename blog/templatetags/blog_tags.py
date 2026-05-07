@@ -54,6 +54,15 @@ def get_post_count():
     return Post.objects.filter(status="published").count()
 
 
+@register.filter(name="wordcount")
+def wordcount_filter(text):
+    """统计中文字数"""
+    import re
+    chinese = len(re.findall(r'[一-鿿]', text))
+    words = len(re.findall(r'[a-zA-Z0-9]+', text))
+    return chinese + words
+
+
 @register.inclusion_tag("blog/_sidebar.html")
 def render_sidebar():
     return {

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load blog_tags %}
+
+{% block title %}文章归档{% endblock %}
+
+{% block content %}
+<h1 class="page-heading">文章归档</h1>
+{% if archive %}
+<div class="post-list">
+    {% for month, posts in archive.items %}
+    <h2 style="font-size:18px;font-weight:700;margin:28px 0 12px;color:var(--text);">{{ month }}</h2>
+    {% for post in posts %}
+    <article class="post-card">
+        <div class="post-card-date">
+            <span class="day">{{ post.created_at|date:"d" }}</span>
+        </div>
+        <div class="post-card-content">
+            <h3 class="post-title">
+                <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+            </h3>
+            <div class="post-card-meta">
+                {% if post.category %}
+                <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>
+                <span style="color:#ddd">·</span>
+                {% endif %}
+                <span>{{ post.views }} 阅读</span>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><p>暂无文章</p></div>
+{% endif %}
+{% endblock %}

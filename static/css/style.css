@@ -243,6 +243,27 @@ a:hover { text-decoration: underline; }
 .pagination a:hover { background: var(--blue); color: #fff; border-color: var(--blue); text-decoration: none; }
 .pagination .current { background: var(--blue); color: #fff; border-color: var(--blue); }
 
+/* ===== Image Lightbox ===== */
+.lightbox-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 300;
+    display: flex; align-items: center; justify-content: center;
+    cursor: zoom-out; opacity: 0; visibility: hidden; transition: all .25s;
+}
+.lightbox-overlay.show { opacity: 1; visibility: visible; }
+.lightbox-overlay img { max-width: 90vw; max-height: 90vh; border-radius: 8px; transform: scale(.9); transition: transform .25s; }
+.lightbox-overlay.show img { transform: scale(1); }
+
+/* ===== Code copy button ===== */
+.code-block-wrapper { position: relative; }
+.code-block-wrapper .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    padding: 4px 12px; border: 1px solid transparent; border-radius: 6px;
+    background: rgba(255,255,255,.1); color: #94a3b8;
+    font-size: 12px; cursor: pointer; transition: all .2s;
+}
+.code-block-wrapper .copy-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+.code-block-wrapper .copy-btn.copied { color: #4ade80; }
+
 /* ===== Footer ===== */
 .site-footer { text-align: center; padding: 32px 24px 40px; color: var(--text-muted); font-size: 12px; }
 

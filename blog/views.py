@@ -75,3 +75,14 @@ def search(request):
 
 def about(request):
     return render(request, "blog/about.html")
+
+
+from collections import defaultdict
+
+def archive(request):
+    posts = Post.objects.filter(status="published").order_by("-created_at")
+    grouped = defaultdict(list)
+    for p in posts:
+        key = f"{p.created_at.year}年{p.created_at.month:02d}月"
+        grouped[key].append(p)
+    return render(request, "blog/archive.html", {"archive": dict(grouped)})

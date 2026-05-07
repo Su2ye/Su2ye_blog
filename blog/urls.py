@@ -10,6 +10,7 @@ urlpatterns = [
     path("category/<slug:slug>/", views.category_list, name="category"),
     path("tag/<slug:slug>/", views.tag_list, name="tag"),
     path("about/", views.about, name="about"),
+    path("archive/", views.archive, name="archive"),
     path("rss/", LatestPostsFeed(), name="rss"),
     path("search/", views.post_list, name="search"),
 ]
