@@ -10,20 +10,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}首页{% endblock %} | Su2ye 的博客</title>
     <link rel="alternate" type="application/rss+xml" title="Su2ye 的博客 RSS" href="{% url 'blog:rss' %}">
+    <link rel="stylesheet" href="{% static 'css/pygments.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header class="site-header">
+    <div class="reading-progress" id="progress-bar"></div>
+    <div class="lightbox-overlay" id="lightbox"><img src="" alt=""></div>
+
+    <header class="site-header" id="site-header">
         <div class="header-inner">
             <a href="{% url 'blog:home' %}" class="site-logo">Su2ye</a>
             <nav class="site-nav">
                 <a href="{% url 'blog:home' %}">文章</a>
+                <a href="{% url 'blog:archive' %}">归档</a>
                 <a href="{% url 'blog:about' %}">关于</a>
                 <a href="{% url 'blog:rss' %}">RSS</a>
             </nav>
             <form class="header-search" action="{% url 'blog:search' %}" method="get">
                 <input type="text" name="q" placeholder="搜索..." value="{{ search_query|default:'' }}">
             </form>
+            <button class="dark-toggle" id="dark-toggle" title="切换暗色模式" aria-label="切换暗色模式">☀</button>
         </div>
     </header>
 
@@ -31,10 +37,9 @@
 
     <main class="main-layout">
 
-        <!-- 左侧栏：个人信息 -->
         <aside class="sidebar-left">
             <div class="profile-card">
-                <img src="/static/img/tx.jpg" alt="Su2ye" class="avatar" width="80" height="80">
+                <img src="/static/img/tx.jpg" alt="Su2ye" class="avatar" width="88" height="88">
                 <div class="name">Su2ye</div>
                 <div class="bio">记录学习与生活</div>
                 <div class="stats">
@@ -53,25 +58,25 @@
                 </div>
             </div>
             <div class="side-links">
-                <a href="{% url 'blog:about' %}">👤 关于我</a>
-                <a href="{% url 'blog:rss' %}">📡 RSS 订阅</a>
+                <a href="{% url 'blog:about' %}">关于我</a>
+                <a href="{% url 'blog:archive' %}">文章归档</a>
+                <a href="{% url 'blog:rss' %}">RSS 订阅</a>
             </div>
         </aside>
 
-        <!-- 中间：主要内容 -->
         <section class="content">
             {% block content %}{% endblock %}
         </section>
 
-        <!-- 右侧栏：分类 + 标签 -->
         <aside class="sidebar-right">
             <div class="right-widget">
                 <h3>分类</h3>
                 <ul>
+                    <li><a href="{% url 'blog:home' %}">全部 <span>{{ total_posts }}</span></a></li>
                     {% for c in categories %}
                     <li><a href="{{ c.get_absolute_url }}">{{ c.name }} <span>{{ c.post_count }}</span></a></li>
                     {% empty %}
-                    <li><span style="font-size:13px;color:var(--text-muted);">暂无</span></li>
+                    <li><span style="font-size:14px;color:var(--text-muted);">暂无</span></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -99,8 +104,94 @@
 
     </main>
 
+    <button class="back-to-top" id="back-to-top" title="返回顶部" aria-label="返回顶部">↑</button>
+
     <footer class="site-footer">
-        <p>&copy; {% now "Y" %} Su2ye.site</p>
+        <p>&copy; {% now "Y" %} Su2ye.site · 已运行 <span id="run-days"></span> 天</p>
     </footer>
+
+    <script>
+    (function() {
+        var toggle = document.getElementById('dark-toggle');
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+            toggle.textContent = '☾';
+        }
+        toggle.addEventListener('click', function() {
+            var isDark = document.body.classList.toggle('dark');
+            toggle.textContent = isDark ? '☾' : '☀';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        var bar = document.getElementById('progress-bar');
+        window.addEventListener('scroll', function() {
+            var h = document.documentElement;
+            var total = h.scrollHeight - h.clientHeight;
+            bar.style.width = total > 0 ? (h.scrollTop / total * 100) + '%' : '0%';
+        });
+
+        var btn = document.getElementById('back-to-top');
+        window.addEventListener('scroll', function() {
+            btn.classList.toggle('visible', window.scrollY > 400);
+        });
+        btn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ---- Run days ----
+        var launch = new Date('2026-05-05');
+        var now = new Date();
+        var days = Math.floor((now - launch) / 86400000);
+        document.getElementById('run-days').textContent = days;
+
+        // ---- Image lightbox ----
+        var lb = document.getElementById('lightbox');
+        var lbImg = lb.querySelector('img');
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.post-body img') && !e.target.closest('.code-block-wrapper')) {
+                lbImg.src = e.target.src;
+                lb.classList.add('show');
+            }
+        });
+        lb.addEventListener('click', function() { lb.classList.remove('show'); });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') lb.classList.remove('show'); });
+
+        // ---- Code copy ----
+        function copyText(text) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '-9999px';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try { document.execCommand('copy'); return true; }
+            catch(e) { return false; }
+            finally { document.body.removeChild(ta); }
+        }
+        setTimeout(function() {
+            document.querySelectorAll('.post-body pre').forEach(function(pre) {
+                var wrap = document.createElement('div');
+                wrap.className = 'code-block-wrapper';
+                pre.parentNode.insertBefore(wrap, pre);
+                wrap.appendChild(pre);
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.textContent = '复制';
+                btn.onclick = function() {
+                    var code = pre.querySelector('code') || pre;
+                    var text = code.textContent || code.innerText || '';
+                    if (copyText(text)) {
+                        btn.textContent = '已复制';
+                        btn.classList.add('copied');
+                        setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+                    }
+                };
+                wrap.appendChild(btn);
+            });
+        }, 200);
+    })();
+    </script>
 </body>
 </html>

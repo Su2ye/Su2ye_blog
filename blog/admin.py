@@ -24,7 +24,7 @@ class PostAdmin(admin.ModelAdmin):
         (None, {"fields": ["title", "slug", "author"]}),
         ("内容", {"fields": ["image", "summary", "body"]}),
         ("分类", {"fields": ["category", "tags"]}),
-        ("设置", {"fields": ["status", "is_top", "views"]}),
+        ("设置", {"fields": ["status", "is_top", "views", "created_at"]}),
     ]
 
 

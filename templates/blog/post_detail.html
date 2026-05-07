@@ -18,6 +18,8 @@
                 <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>
                 {% endif %}
                 <span class="post-meta-dot">·</span>
+                <span>{{ post.body|wordcount }} 字</span>
+                <span class="post-meta-dot">·</span>
                 <span>{{ post.views }} 阅读</span>
             </div>
         </header>
